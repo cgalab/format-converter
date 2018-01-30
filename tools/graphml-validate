@@ -1,0 +1,22 @@
+#!/usr/bin/python3
+
+from lxml import etree
+
+def main():
+    """Load a graph from stdin or a file."""
+    import argparse
+    import sys
+
+    argparser = argparse.ArgumentParser(description='Load a graph from a .line file')
+    argparser.add_argument('--schema', help='schema definition file (.xsd)', type=argparse.FileType('rt'), default='graphml.xsd')
+    argparser.add_argument('inputfile', help='Inputfile (.graphml)', nargs='?', type=argparse.FileType('rt'), default=sys.stdin)
+    args = argparser.parse_args()
+
+    schema_root = etree.XML(args.schema.read())
+    schema = etree.XMLSchema(schema_root)
+    xmlparser = etree.XMLParser(schema = schema)
+
+    root = etree.fromstring(args.inputfile.read(), xmlparser)
+
+if __name__ == '__main__' and __package__ is None:
+    main()
