@@ -46,10 +46,13 @@ def main():
 
     parser = argparse.ArgumentParser(description='Load a graph from a .line file')
     parser.add_argument('inputfile', help='Inputfile (.line)', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?', type=argparse.FileType('wb'), default=sys.stdout.buffer)
     args = parser.parse_args()
 
     g = LineLoader.load(args.inputfile)
-    print(g)
+    g.write_graphml(args.outputfile)
+    args.outputfile.close()
+    #print(g)
 
 if __name__ == '__main__' and __package__ is None:
     main()

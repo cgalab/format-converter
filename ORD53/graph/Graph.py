@@ -7,7 +7,7 @@ if __name__ == '__main__' and __package__ is None:
     __LEVEL = 2
     os.sys.path.append(os.path.abspath(os.path.join(*([os.path.dirname(__file__)] + ['..']*__LEVEL))))
 
-#import pygraphml
+from lxml import etree as ET
 from ORD53.common.IndexedSet import IndexedSet
 from ORD53.common.geometry import Vertex2
 
@@ -20,6 +20,11 @@ class GeometricGraph:
 
     This is a graph where vertices have (2d) coordinates.
     """
+
+    GRAPHML_NAMESPACE = 'http://graphml.graphdrawing.org/xmlns'
+    XML_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
+    GRAPHML_SCHEMA_LOCATION = 'http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd'
+
     def __init__(self):
         self.vertices = IndexedSet()
         self.edges = set() # a set of tuples of vertex indices
@@ -47,3 +52,28 @@ class GeometricGraph:
 
     def __repr__(self):
         return "%s(%s, %s)"%(self.__class__.__name__, self.vertices, self.edges)
+
+    def get_as_graphml(self):
+        """Build a graphml XML document"""
+        nsmap = {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
+
+        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge')}
+
+        graphml = ET.Element(tags['graphml'], attrib={"{"+self.XML_XSI+"}schemaLocation": self.GRAPHML_SCHEMA_LOCATION}, nsmap=nsmap)
+        graph = ET.SubElement(graphml, tags['graph'], {'edgedefault': 'undirected'})
+
+        for idx, _ in enumerate(self.vertices):
+            attrib = {'id': str(idx)}
+            graph.append(ET.Element(tags['node'], attrib))
+
+        for src, dst in self.edges:
+            attrib = {'source': str(src), 'target': str(dst)}
+            graph.append(ET.Element(tags['edge'], attrib))
+
+        return graphml
+
+    def write_graphml(self, f):
+        """Write a graphml representation to the file f"""
+        xml = self.get_as_graphml()
+        for s in ET.tostringlist(xml, pretty_print=True):
+            f.write(s)

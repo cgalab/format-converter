@@ -22,5 +22,8 @@ class IndexedSet:
             self.key_to_idx[item] = idx
             return idx
 
+    def __iter__(self):
+        yield from self.list
+
     def __repr__(self):
         return "%s(%s)"%(self.__class__.__name__, self.list)
