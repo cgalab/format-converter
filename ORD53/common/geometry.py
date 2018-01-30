@@ -15,7 +15,10 @@ class Vertex2:
         return "%s(%.17f, %.17f)"%(self.__class__.__name__, self.x, self.y)
 
     def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
 
     def __hash__(self):
         return hash((self.x, self.y))
