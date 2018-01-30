@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""This module provides the IndexedSet class."""
+
 class IndexedSet:
     """A set of elements backed by a list
 

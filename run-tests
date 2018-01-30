@@ -1,4 +1,4 @@
 #!/bin/sh
 
 python -m unittest  discover
-pylint3 --disable=missing-docstring ORD53 test
+pylint3 ORD53 test

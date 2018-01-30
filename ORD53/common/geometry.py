@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""2D and 3D geometric objects."""
+
 class Vertex2:
     """A 2D Vertex
 
@@ -28,6 +30,8 @@ class Vertex2:
         return self.__class__(scalar * self.x, scalar * self.y)
 
     def dotproduct(self, other):
+        """Compute the dotproduct of this vector with another one."""
         return self.x * other.x + self.y * other.y
     def lensquared(self):
+        """Compute the squared length of this vector."""
         return self.dotproduct(self)

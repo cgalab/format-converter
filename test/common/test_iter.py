@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Tests for ORD53.common.iter"""
+
 if __name__ == '__main__' and __package__ is None:
     import os
     __LEVEL = 2
@@ -13,11 +15,15 @@ import ORD53.common.iter
 from ORD53.common.iter import PeekIterator
 
 def load_tests(loader, tests, pattern): # pylint: disable=unused-argument
+    """Add DocTestSuite to unittest tests."""
     tests.addTests(doctest.DocTestSuite(ORD53.common.iter))
     return tests
 
 class TestIters(unittest.TestCase):
+    """Additional unittests for iter module."""
+
     def test_peek_iterator(self):
+        """Test the PeekIterator."""
         for length in range(5):
             elements = list(range(length))
 

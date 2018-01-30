@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Useful additional iterators"""
+
 #import itertools
 
 def pair_iterator(iterable):
@@ -80,7 +82,6 @@ class PeekIterator():
     >>> list(PeekIterator(range(3)))
     [0, 1, 2]
     """
-    # pylint: disable=too-few-public-methods
     def __init__(self, iterable):
         self.iterable = iter(iterable)
         self.peeked = False
@@ -104,6 +105,13 @@ class PeekIterator():
             return next(self.iterable)
 
     def peek(self):
+        """Get a look at the next element.
+
+        Return the next element without removing it from the next iterator.
+
+        If there is no next element, forward the exception raised by
+        the underlying iterator, usually a StopException.
+        """
         if self.peeked:
             return self._return_peeked()
         else:

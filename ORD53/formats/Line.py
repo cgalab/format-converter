@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+"""Loader for .line formatted graphs."""
+
 if __name__ == '__main__' and __package__ is None:
     import os
     __LEVEL = 2
@@ -10,8 +12,10 @@ from ORD53.common.geometry import Vertex2
 from ORD53.common.iter import cyclic_pair_iterator, PeekIterator
 
 class LineLoader:
+    """Load a graph from Martin's .line format"""
     @staticmethod
     def _add_polychain(g, f):
+        """Add a single polychain from the file"""
         vertices = []
         num_elems = int(next(f))
         for _ in range(num_elems):
@@ -23,6 +27,7 @@ class LineLoader:
 
     @classmethod
     def load(cls, f):
+        """Load graph from a valid .line file"""
         g = GeometricGraph()
         f = PeekIterator(f)
         while True:
@@ -35,6 +40,7 @@ class LineLoader:
         return g
 
 def main():
+    """Load a graph from stdin or a file."""
     import argparse
     import sys
 
