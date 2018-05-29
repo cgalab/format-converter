@@ -57,14 +57,21 @@ class GeometricGraph:
         """Build a graphml XML document"""
         nsmap = {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
 
-        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge')}
+        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data')}
 
         graphml = ET.Element(tags['graphml'], attrib={"{"+self.XML_XSI+"}schemaLocation": self.GRAPHML_SCHEMA_LOCATION}, nsmap=nsmap)
+        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'coordinate-x', 'attr.type': 'string', 'id': 'x'})
+        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'coordinate-y', 'attr.type': 'string', 'id': 'y'})
+        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'weight', 'attr.type': 'string', 'id': 'w'})
+        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'weight-additive', 'attr.type': 'string', 'id': 'wa'})
         graph = ET.SubElement(graphml, tags['graph'], {'edgedefault': 'undirected'})
 
-        for idx, _ in enumerate(self.vertices):
+        for idx, v in enumerate(self.vertices):
             attrib = {'id': str(idx)}
-            graph.append(ET.Element(tags['node'], attrib))
+            node = ET.Element(tags['node'], attrib)
+            ET.SubElement(node, tags['data'], {'key': 'x'}).text = str(v.x)
+            ET.SubElement(node, tags['data'], {'key': 'y'}).text = str(v.y)
+            graph.append(node)
 
         for src, dst in self.edges:
             attrib = {'source': str(src), 'target': str(dst)}
