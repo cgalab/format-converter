@@ -9,7 +9,7 @@ if __name__ == '__main__' and __package__ is None:
 
 from ORD53.graph.Graph import GeometricGraph
 from ORD53.common.geometry import Vertex2
-from ORD53.common.iter import cyclic_pair_iterator, PeekIterator
+from ORD53.common.iter import pair_iterator, PeekIterator
 
 class LineLoader:
     """Load a graph from Martin's .line format"""
@@ -22,7 +22,7 @@ class LineLoader:
             (x, y) = [float(c) for c in next(f).split()]
             vertices.append(Vertex2(x, y))
 
-        for t in cyclic_pair_iterator(vertices):
+        for t in pair_iterator(vertices):
             g.add_edge_by_vertex(*t)
 
     @classmethod
