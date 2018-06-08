@@ -33,6 +33,7 @@ class LineLoader:
         while True:
             try:
                 if f.peek() == "\n":
+                    next(f)
                     continue
             except StopIteration:
                 break
