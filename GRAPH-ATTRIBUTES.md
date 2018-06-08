@@ -12,15 +12,15 @@ The graphml format also defines a means to add additional attributes
 to graph elements such as vertices and edges.
 
 We define the following attributes for vertices.
-*  coordinate-x: The X-coordinate of this vertex.
+*  vertex-coordinate-x: The X-coordinate of this vertex.
    The data type of this attribute can either be double or string.
-*  coordinate-y: The Y-coordinate of this vertex.
+*  vertex-coordinate-y: The Y-coordinate of this vertex.
    The data type of this attribute can either be double or string.
 
 We define the following attributes for edges.
-*  weight: The (multiplicative) weight of this edge.
+*  edge-weight: The (multiplicative) weight of this edge.
    The data type of this attribute can either be double or string.
-*  weight-additive: The (additive) weight of this edge.
+*  edge-weight-additive: The (additive) weight of this edge.
    The data type of this attribute can either be double or string.
 
 # see also

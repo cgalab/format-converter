@@ -60,10 +60,10 @@ class GeometricGraph:
         tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data')}
 
         graphml = ET.Element(tags['graphml'], attrib={"{"+self.XML_XSI+"}schemaLocation": self.GRAPHML_SCHEMA_LOCATION}, nsmap=nsmap)
-        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'coordinate-x', 'attr.type': 'string', 'id': 'x'})
-        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'coordinate-y', 'attr.type': 'string', 'id': 'y'})
-        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'weight', 'attr.type': 'string', 'id': 'w'})
-        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'weight-additive', 'attr.type': 'string', 'id': 'wa'})
+        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'vertex-coordinate-x', 'attr.type': 'string', 'id': 'x'})
+        ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'vertex-coordinate-y', 'attr.type': 'string', 'id': 'y'})
+        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight', 'attr.type': 'string', 'id': 'w'})
+        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight-additive', 'attr.type': 'string', 'id': 'wa'})
         graph = ET.SubElement(graphml, tags['graph'], {'edgedefault': 'undirected'})
 
         for idx, v in enumerate(self.vertices):
