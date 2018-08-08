@@ -10,6 +10,7 @@ if __name__ == '__main__' and __package__ is None:
 from lxml import etree as ET
 from ORD53.common.IndexedSet import IndexedSet
 from ORD53.common.geometry import Vertex2
+import random
 
 class GraphException(Exception):
     """Exception raised by classes in this module."""
@@ -25,16 +26,19 @@ class GeometricGraph:
     XML_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
     GRAPHML_SCHEMA_LOCATION = 'http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd'
 
+    DEFAULT_W = str(1.0)
+    DEFAULT_WA = str(0.0)
+
     def __init__(self):
         self.vertices = IndexedSet()
-        self.edges = set() # a set of tuples of vertex indices
+        self.edges = {}
 
     def add_vertex(self, vertex):
         """Add a vertex (instance of Vertex2) to this graph."""
         assert isinstance(vertex, Vertex2)
         return self.vertices.add(vertex)
 
-    def add_edge_by_vertex(self, vertex0, vertex1):
+    def add_edge_by_vertex(self, vertex0, vertex1, w=None, wa=None):
         """Add an edge given by 2 vertices (instance of Vertex2) to this graph.
 
         Adding an edge that already exists is an error and raises a GraphException.
@@ -48,22 +52,31 @@ class GeometricGraph:
         edge = tuple(sorted((idx0, idx1)))
         if edge in self.edges:
             raise GraphException("Edge already exists.")
-        self.edges.add(tuple(sorted((idx0, idx1))))
+        self.edges[edge] = {
+            'w': w,
+            'wa': wa
+        }
 
     def __repr__(self):
         return "%s(%s, %s)"%(self.__class__.__name__, self.vertices, self.edges)
+
+    def randomize_weights(self, rnd_lower=0.0, rnd_upper=5.0):
+        for k, v in self.edges.items():
+            v['w'] = str(random.uniform(rnd_lower, rnd_upper));
 
     def get_as_graphml(self):
         """Build a graphml XML document"""
         nsmap = {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
 
-        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data')}
+        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data', 'default')}
 
         graphml = ET.Element(tags['graphml'], attrib={"{"+self.XML_XSI+"}schemaLocation": self.GRAPHML_SCHEMA_LOCATION}, nsmap=nsmap)
         ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'vertex-coordinate-x', 'attr.type': 'string', 'id': 'x'})
         ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'vertex-coordinate-y', 'attr.type': 'string', 'id': 'y'})
-        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight', 'attr.type': 'string', 'id': 'w'})
-        ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight-additive', 'attr.type': 'string', 'id': 'wa'})
+        key = ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight', 'attr.type': 'string', 'id': 'w'})
+        ET.SubElement(key, tags['default']).text = self.DEFAULT_W;
+        key = ET.SubElement(graphml, tags['key'], {'for': 'edge', 'attr.name': 'edge-weight-additive', 'attr.type': 'string', 'id': 'wa'})
+        ET.SubElement(key, tags['default']).text = self.DEFAULT_WA;
         graph = ET.SubElement(graphml, tags['graph'], {'edgedefault': 'undirected'})
 
         for idx, v in enumerate(self.vertices):
@@ -73,9 +86,15 @@ class GeometricGraph:
             ET.SubElement(node, tags['data'], {'key': 'y'}).text = str(v.y)
             graph.append(node)
 
-        for src, dst in self.edges:
+        for edge, attributes in self.edges.items():
+            src, dst  = edge
             attrib = {'source': str(src), 'target': str(dst)}
-            graph.append(ET.Element(tags['edge'], attrib))
+            edge = ET.Element(tags['edge'], attrib)
+            if attributes['w'] is not None:
+                ET.SubElement(edge, tags['data'], {'key': 'w'}).text = attributes['w']
+            if attributes['wa'] is not None:
+                ET.SubElement(edge, tags['data'], {'key': 'wa'}).text = attributes['wa']
+            graph.append(edge)
 
         return graphml
 
