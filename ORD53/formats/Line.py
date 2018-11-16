@@ -28,7 +28,7 @@ class LineLoader:
             g.add_edge_by_vertex(*t)
 
     @classmethod
-    def load(cls, f):
+    def load(cls, f, args=None):
         """Load graph from a valid .line file"""
         g = GeometricGraph()
         f = PeekIterator(f)

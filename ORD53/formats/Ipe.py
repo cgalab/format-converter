@@ -128,24 +128,58 @@ class IpeLoader:
 
 
     @classmethod
-    def load(cls, f):
+    def load(cls, f, args=None):
         """Load graph from a valid .line file"""
-        g = GeometricGraph()
+        flatten = args is not None and args.flatten
+
+        g = GeometricGraph() if flatten else None
+        graphs = []
         tree = ET.parse(f)
         root = tree.getroot()
 
-        for e in page.findall("./page/path"):
-            t =  e.text
-            m = list(map(lambda a: float(a), e.attrib['matrix'].split())) if 'matrix' in e.attrib else None
-            #p = e.attrib['pen'] if 'pen' in e.attrib else None
-            #speed = None
-            #if 'stroke' in e.attrib:
-            #    s = e.attrib['stroke'].split(' ', 2)
-            #    if len(s) == 3:
-            #        blue = float(s[2])
-            #        speed = (0.502 * 2)/(1-blue) - 1
-            cls._add_path(g, t, m)
-        return g
+        for child in root:
+            if child.tag != "page": continue
+            page = child
+
+            layers = {}
+            views = []
+            for v in page.findall("./view"):
+                if 'layers' not in v.attrib: continue
+                visible = {}
+                for l in v.attrib['layers'].split():
+                    visible[l] = True
+                    layers[l] = None
+                views.append(visible)
+
+            for l in layers:
+                layers[l] = g if flatten else GeometricGraph()
+            if not flatten:
+                graphs += [layers[l] for l in layers]
+
+            active_layer = None
+            for child in page:
+                if 'layer' in child.attrib:
+                    active_layer = child.attrib['layer']
+                if child.tag != 'path': continue
+
+                t =  child.text
+                m = list(map(lambda a: float(a), child.attrib['matrix'].split())) if 'matrix' in child.attrib else None
+                #p = child.attrib['pen'] if 'pen' in child.attrib else None
+                #speed = None
+                #if 'stroke' in child.attrib:
+                #    s = child.attrib['stroke'].split(' ', 2)
+                #    if len(s) == 3:
+                #        blue = float(s[2])
+                #        speed = (0.502 * 2)/(1-blue) - 1
+                if active_layer is None:
+                    raise Exception("No active layer.")
+                assert(active_layer in layers and isinstance(layers[active_layer], GeometricGraph))
+                cls._add_path(layers[active_layer], t, m)
+
+        if flatten:
+            return g
+        else:
+            return graphs
 
 def main():
     """Load a graph from stdin or a file."""
@@ -156,13 +190,18 @@ def main():
     parser.add_argument('inputfile', help='Inputfile (.ipe)', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?', type=argparse.FileType('wb'), default=sys.stdout.buffer)
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
+    parser.add_argument('-f', '--flatten', action='store_true', default=False, help='flatten views and pages')
 
     args = parser.parse_args()
 
     g = IpeLoader.load(args.inputfile)
+    if not isinstance(g, list):
+        g = [g]
     if args.randomize_weights:
-      g.randomize_weights()
-    g.write_graphml(args.outputfile)
+      for i in g:
+        i.randomize_weights()
+    for i in g:
+        i.write_graphml(args.outputfile)
     args.outputfile.close()
     #print(g)
 
