@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+
+"""Loader for .line formatted graphs."""
+
+if __name__ == '__main__' and __package__ is None:
+    import os
+    __LEVEL = 1
+    os.sys.path.append(os.path.abspath(os.path.join(*([os.path.dirname(__file__)] + ['..']*__LEVEL))))
+
+from ORD53.formats.Line import LineLoader
+
+def main():
+    """Load a graph from stdin or a file."""
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description='Load a graph and output it in ord53 format')
+    parser.add_argument('inputfile', help='Inputfile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?', type=argparse.FileType('wb'), default=sys.stdout.buffer)
+    parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
+
+    args = parser.parse_args()
+
+    g = LineLoader.load(args.inputfile)
+    if args.randomize_weights:
+      g.randomize_weights()
+    g.write_graphml(args.outputfile)
+    args.outputfile.close()
+
+if __name__ == '__main__' and __package__ is None:
+    main()
