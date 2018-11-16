@@ -23,14 +23,13 @@ class IpeLoader:
         if matrix is None:
             return x, y
 
-        m = map(lambda a: float(a), matrix.split())
-        if len(m) != 6:
+        if len(matrix) != 6:
             raise("Invalid matrix '%s'."%(matrix))
 
-        x, y = x*m[0] + y*m[2], x*m[1] + y*m[3]
+        x, y = x*matrix[0] + y*matrix[2], x*matrix[1] + y*matrix[3]
 
-        x += m[4]
-        y += m[5]
+        x += matrix[4]
+        y += matrix[5]
         return x, y
 
     @staticmethod
@@ -135,9 +134,9 @@ class IpeLoader:
         tree = ET.parse(f)
         root = tree.getroot()
 
-        for e in root.findall("./page/path"):
+        for e in page.findall("./page/path"):
             t =  e.text
-            m = e.attrib['matrix'] if 'matrix' in e.attrib else None
+            m = list(map(lambda a: float(a), e.attrib['matrix'].split())) if 'matrix' in e.attrib else None
             #p = e.attrib['pen'] if 'pen' in e.attrib else None
             #speed = None
             #if 'stroke' in e.attrib:
