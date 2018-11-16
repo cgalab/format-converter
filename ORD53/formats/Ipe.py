@@ -132,29 +132,26 @@ class IpeLoader:
         """Load graph from a valid .line file"""
         flatten = args is not None and args.flatten
 
-        g = GeometricGraph() if flatten else None
-        graphs = []
         tree = ET.parse(f)
         root = tree.getroot()
+        graph = GeometricGraph() if flatten else None
+        graphs = []
 
         for child in root:
             if child.tag != "page": continue
             page = child
 
-            layers = {}
-            views = []
-            for v in page.findall("./view"):
-                if 'layers' not in v.attrib: continue
-                visible = {}
-                for l in v.attrib['layers'].split():
-                    visible[l] = True
-                    layers[l] = None
-                views.append(visible)
-
-            for l in layers:
-                layers[l] = g if flatten else GeometricGraph()
             if not flatten:
-                graphs += [layers[l] for l in layers]
+                layer_visible_in_views = {}
+                for v in page.findall("./view"):
+                    g = GeometricGraph()
+                    graphs.append(g)
+                    if 'layers' not in v.attrib: continue
+
+                    for l in v.attrib['layers'].split():
+                        if not l in layer_visible_in_views:
+                            layer_visible_in_views[l] = []
+                        layer_visible_in_views[l].append(g)
 
             active_layer = None
             for child in page:
@@ -173,11 +170,18 @@ class IpeLoader:
                 #        speed = (0.502 * 2)/(1-blue) - 1
                 if active_layer is None:
                     raise Exception("No active layer.")
-                assert(active_layer in layers and isinstance(layers[active_layer], GeometricGraph))
-                cls._add_path(layers[active_layer], t, m)
+                if flatten:
+                    cls._add_path(graph, t, m)
+                else:
+                    if not active_layer in layer_visible_in_views:
+                        continue
+                    assert(isinstance(layer_visible_in_views[active_layer], list))
+                    for g in layer_visible_in_views[active_layer]:
+                        assert(isinstance(g, GeometricGraph))
+                        cls._add_path(g, t, m)
 
         if flatten:
-            return g
+            return graph
         else:
             return graphs
 
