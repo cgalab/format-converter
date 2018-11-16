@@ -1,4 +1,9 @@
 
-python3 ./ORD53/formats/Line.py ../test-data/st0000054.line x
 
+python3 ./ORD53/formats/Line.py ../test-data/st0000054.line x
 ./tools/graphml-validate < x
+
+-OR-
+pip3 install --user -e  .
+
+ln -s `pwd`/bin/* ~/bin/

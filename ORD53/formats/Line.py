@@ -12,6 +12,8 @@ from ORD53.common.geometry import Vertex2
 from ORD53.common.iter import pair_iterator, PeekIterator
 
 class LineLoader:
+    extension = '.line'
+
     """Load a graph from Martin's .line format"""
     @staticmethod
     def _add_polychain(g, f):
