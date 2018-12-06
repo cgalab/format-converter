@@ -11,6 +11,8 @@ from ORD53.graph.Graph import GeometricGraph
 from ORD53.common.geometry import Vertex2
 from ORD53.common.iter import pair_iterator, PeekIterator
 
+import os
+
 class LineLoader:
     extension = '.line'
 
@@ -30,7 +32,7 @@ class LineLoader:
     @classmethod
     def load(cls, f, args=None):
         """Load graph from a valid .line file"""
-        g = GeometricGraph()
+        g = GeometricGraph(source=f.name, fmt=os.path.basename(__file__))
         f = PeekIterator(f)
         while True:
             try:

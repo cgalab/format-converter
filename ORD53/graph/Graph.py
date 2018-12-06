@@ -10,7 +10,9 @@ if __name__ == '__main__' and __package__ is None:
 from lxml import etree as ET
 from ORD53.common.IndexedSet import IndexedSet
 from ORD53.common.geometry import Vertex2
+import os
 import random
+import sys
 
 class GraphException(Exception):
     """Exception raised by classes in this module."""
@@ -29,9 +31,11 @@ class GeometricGraph:
     DEFAULT_W = str(1.0)
     DEFAULT_WA = str(0.0)
 
-    def __init__(self):
+    def __init__(self, source="unknown", fmt=None):
         self.vertices = IndexedSet()
         self.edges = {}
+        self.source = source
+        self.fmt = fmt
 
     def add_vertex(self, vertex):
         """Add a vertex (instance of Vertex2) to this graph."""
@@ -96,6 +100,11 @@ class GeometricGraph:
                 ET.SubElement(edge, tags['data'], {'key': 'wa'}).text = attributes['wa']
             graph.append(edge)
 
+        commenttext = " Created by %s from %s "%(os.path.basename(sys.argv[0]), self.source)
+        if self.fmt is not None:
+            commenttext += " [%s]"%(self.fmt)
+        comment = ET.Comment(commenttext)
+        graphml.insert(0, comment)
         return graphml
 
     def write_graphml(self, f):

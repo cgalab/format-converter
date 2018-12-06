@@ -12,6 +12,7 @@ from ORD53.common.geometry import Vertex2
 from ORD53.common.iter import pair_iterator, PeekIterator
 
 import xml.etree.ElementTree as ET
+import os
 
 class IpeLoader:
     """Load a graph from an IPE file"""
@@ -134,7 +135,7 @@ class IpeLoader:
 
         tree = ET.parse(f)
         root = tree.getroot()
-        graph = GeometricGraph() if flatten else None
+        graph = GeometricGraph(f.name, fmt=os.path.basename(__file__)) if flatten else None
         graphs = []
 
         for child in root:
@@ -144,7 +145,7 @@ class IpeLoader:
             if not flatten:
                 layer_visible_in_views = {}
                 for v in page.findall("./view"):
-                    g = GeometricGraph()
+                    g = GeometricGraph(source="%s (view %d)"%(f.name, len(graphs)+1), fmt=os.path.basename(__file__))
                     graphs.append(g)
                     if 'layers' not in v.attrib: continue
 
