@@ -101,6 +101,7 @@ class GeometricGraph:
             graph.append(edge)
 
         commenttext = " Created by %s from %s "%(os.path.basename(sys.argv[0]), self.source)
+        commenttext = commenttext.replace('--', '- -')
         if self.fmt is not None:
             commenttext += " [%s]"%(self.fmt)
         comment = ET.Comment(commenttext)
