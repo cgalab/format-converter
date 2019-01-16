@@ -28,11 +28,6 @@ def main():
     args = parser.parse_args()
 
     _, ext = os.path.splitext(args.inputfile.name)
-    if ext == '.graphml' or open(args.inputfile).readline().startswith('<graphml'):
-        print("Passthrough for graphml", file=sys.stderr)
-
-
-
     graphs = None
     for l in loaders:
         if ext == '' or ext == l.extension:
