@@ -30,13 +30,13 @@ class LineLoader:
             g.add_edge_by_vertex(*t)
 
     @classmethod
-    def load(cls, f, args=None):
+    def load(cls, content, name="unknown", args=None):
         """Load graph from a valid .line file"""
-        g = GeometricGraph(source=f.name, fmt=os.path.basename(__file__))
-        f = PeekIterator(f)
+        g = GeometricGraph(source=name, fmt=os.path.basename(__file__))
+        f = PeekIterator(content.splitlines())
         while True:
             try:
-                if f.peek() == "\n":
+                if f.peek() == "":
                     next(f)
                     continue
             except StopIteration:
@@ -56,7 +56,7 @@ def main():
 
     args = parser.parse_args()
 
-    g = LineLoader.load(args.inputfile)
+    g = LineLoader.load(args.inputfile.read())
     if args.randomize_weights:
       g.randomize_weights()
     g.write_graphml(args.outputfile)

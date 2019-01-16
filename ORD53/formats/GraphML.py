@@ -17,8 +17,8 @@ class GraphMLPassthroughException(Exception):
     pass
 
 class GraphMLPassthroughGraph:
-    def __init__(self, f):
-        self.graphml = f.read()
+    def __init__(self, content):
+        self.graphml = content
         if not self.graphml.startswith('<graphml'):
             raise GraphMLPassthroughException("Not a graphml file")
 
@@ -33,6 +33,6 @@ class GraphMLLoader:
     extension = '.graphml'
 
     @classmethod
-    def load(cls, f, args=None):
-        g = GraphMLPassthroughGraph(f)
+    def load(cls, content, name="unknown", args=None):
+        g = GraphMLPassthroughGraph(content)
         return g

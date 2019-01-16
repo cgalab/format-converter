@@ -28,11 +28,13 @@ def main():
     args = parser.parse_args()
 
     _, ext = os.path.splitext(args.inputfile.name)
+    content = args.inputfile.read()
+
     graphs = None
     for l in loaders:
         if ext == '' or ext == l.extension:
             try:
-                graphs = l.load(args.inputfile, args)
+                graphs = l.load(content, args.inputfile.name, args)
                 break
             except Exception as e:
                 if ext != '': raise e

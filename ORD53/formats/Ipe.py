@@ -129,13 +129,12 @@ class IpeLoader:
 
 
     @classmethod
-    def load(cls, f, args=None):
+    def load(cls, content, name="unknown", args=None):
         """Load graph from a valid .line file"""
         flatten = args is not None and args.flatten
 
-        tree = ET.parse(f)
-        root = tree.getroot()
-        graph = GeometricGraph(f.name, fmt=os.path.basename(__file__)) if flatten else None
+        root = ET.fromstring(content)
+        graph = GeometricGraph(name, fmt=os.path.basename(__file__)) if flatten else None
         graphs = []
 
         for child in root:
@@ -145,7 +144,7 @@ class IpeLoader:
             if not flatten:
                 layer_visible_in_views = {}
                 for v in page.findall("./view"):
-                    g = GeometricGraph(source="%s (view %d)"%(f.name, len(graphs)+1), fmt=os.path.basename(__file__))
+                    g = GeometricGraph(source="%s (view %d)"%(name, len(graphs)+1), fmt=os.path.basename(__file__))
                     graphs.append(g)
                     if 'layers' not in v.attrib: continue
 
@@ -199,7 +198,7 @@ def main():
 
     args = parser.parse_args()
 
-    g = IpeLoader.load(args.inputfile)
+    g = IpeLoader.load(args.inputfile.read())
     if not isinstance(g, list):
         g = [g]
     if args.randomize_weights:
