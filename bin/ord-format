@@ -9,10 +9,11 @@ if __name__ == '__main__' and __package__ is None:
 
 from ORD53.formats.Line import LineLoader
 from ORD53.formats.Ipe import IpeLoader
+from ORD53.formats.GraphML import GraphMLLoader
 import os.path
 import sys
 
-loaders = [ LineLoader, IpeLoader ]
+loaders = [ GraphMLLoader, LineLoader, IpeLoader ]
 def main():
     """Load a graph from stdin or a file."""
     import argparse
@@ -27,6 +28,11 @@ def main():
     args = parser.parse_args()
 
     _, ext = os.path.splitext(args.inputfile.name)
+    if ext == '.graphml' or open(args.inputfile).readline().startswith('<graphml'):
+        print("Passthrough for graphml", file=sys.stderr)
+
+
+
     graphs = None
     for l in loaders:
         if ext == '' or ext == l.extension:
