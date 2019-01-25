@@ -12,7 +12,6 @@ from ORD53.common.geometry import Vertex3
 from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
-import logging, sys
 
 class ObjLoader:
     extension = '.obj'
@@ -29,9 +28,10 @@ class ObjLoader:
         """Add a single face from the file"""
         temp = next(f).split()
         temp.pop(0)
-        face_list = [int(c) for c in temp]
+        face_list = [int(c)-1 for c in temp]
         for e in pair_iterator(face_list):
             g.add_edge_by_index(*e)
+        g.add_edge_by_index(face_list[0], face_list[-1])
 
     @classmethod
     def load(cls, content, name="unknown", args=None):
@@ -42,11 +42,10 @@ class ObjLoader:
             try:
                 if f.peek().startswith("v"):
                     cls._add_vertex(g, f)
-                if f.peek().startswith("f"):
-                    print("calling add_face")
+                elif f.peek().startswith("f"):
                     cls._add_face(g, f)
-                    
-                next(f)
+                else:
+                    next(f)  
 
             except StopIteration:
                 break
