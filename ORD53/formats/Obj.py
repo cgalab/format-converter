@@ -12,6 +12,7 @@ from ORD53.common.geometry import Vertex3
 from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
+import logging, sys
 
 class ObjLoader:
     extension = '.obj'
@@ -23,23 +24,14 @@ class ObjLoader:
         (v, x, y, z) = [c for c in next(f).split()]
         g.add_vertex(Vertex3(float(x), float(y), float(z)))
     
+    @staticmethod
     def _add_face(g, f):
         """Add a single face from the file"""
-        face_list = next(f).split()
-        face_list.pop(0)
+        temp = next(f).split()
+        temp.pop(0)
+        face_list = [int(c) for c in temp]
         for e in pair_iterator(face_list):
             g.add_edge_by_index(*e)
-
-    def _add_polychain(g, f):
-        """Add a single polychain from the file"""
-        vertices = []
-        num_elems = int(next(f))
-        for _ in range(num_elems):
-            (x, y, z) = [float(c) for c in next(f).split()]
-            vertices.append(Vertex3(x, y, z))
-
-        for t in pair_iterator(vertices):
-            g.add_edge_by_vertex(*t)
 
     @classmethod
     def load(cls, content, name="unknown", args=None):
@@ -50,7 +42,8 @@ class ObjLoader:
             try:
                 if f.peek().startswith("v"):
                     cls._add_vertex(g, f)
-                elif f.peek().startswith("f"):
+                if f.peek().startswith("f"):
+                    print("calling add_face")
                     cls._add_face(g, f)
                     
                 next(f)

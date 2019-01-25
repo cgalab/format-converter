@@ -46,7 +46,6 @@ class GeometricGraph:
         """Add an edge given by 2 vertices (instance of int) to this graph."""
         assert isinstance(idx0, int)
         assert isinstance(idx1, int)
-        assert idx0 < len(self.vertices) and idx1 < len(self.vertices)
 
         edge = tuple(sorted((idx0, idx1)))
         if edge in self.edges:
