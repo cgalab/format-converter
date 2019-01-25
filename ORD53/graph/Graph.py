@@ -9,7 +9,7 @@ if __name__ == '__main__' and __package__ is None:
 
 from lxml import etree as ET
 from ORD53.common.IndexedSet import IndexedSet
-from ORD53.common.geometry import Vertex2
+from ORD53.common.geometry import Vertex2, Vertex3
 import os
 import random
 import sys
@@ -38,17 +38,31 @@ class GeometricGraph:
         self.fmt = fmt
 
     def add_vertex(self, vertex):
-        """Add a vertex (instance of Vertex2) to this graph."""
-        assert isinstance(vertex, Vertex2)
+        """Add a vertex (instance of Vertex2 or Vertex3) to this graph."""
+        assert isinstance(vertex, (Vertex2, Vertex3))
         return self.vertices.add(vertex)
+
+    def add_edge_by_index(self, idx0, idx1, w=None, wa=None):
+        """Add an edge given by 2 vertices (instance of int) to this graph."""
+        assert isinstance(idx0, int)
+        assert isinstance(idx1, int)
+        assert idx0 < len(self.vertices) and idx1 < len(self.vertices)
+
+        edge = tuple(sorted((idx0, idx1)))
+        if edge in self.edges:
+            raise GraphException("Edge already exists.")
+        self.edges[edge] = {
+            'w': w,
+            'wa': wa
+        }
 
     def add_edge_by_vertex(self, vertex0, vertex1, w=None, wa=None):
         """Add an edge given by 2 vertices (instance of Vertex2) to this graph.
 
         Adding an edge that already exists is an error and raises a GraphException.
         """
-        assert isinstance(vertex0, Vertex2)
-        assert isinstance(vertex1, Vertex2)
+        assert isinstance(vertex0, (Vertex2, Vertex3))
+        assert isinstance(vertex1, (Vertex2, Vertex3))
 
         idx0 = self.add_vertex(vertex0)
         idx1 = self.add_vertex(vertex1)
