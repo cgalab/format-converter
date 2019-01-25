@@ -45,7 +45,7 @@ class ObjLoader:
                 elif f.peek().startswith("f"):
                     cls._add_face(g, f)
                 else:
-                    next(f)  
+                    next(f)
 
             except StopIteration:
                 break
