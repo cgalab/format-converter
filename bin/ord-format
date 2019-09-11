@@ -8,13 +8,14 @@ if __name__ == '__main__' and __package__ is None:
     os.sys.path.append(os.path.abspath(os.path.join(*([os.path.dirname(__file__)] + ['..']*__LEVEL))))
 
 from ORD53.formats.Line import LineLoader
+from ORD53.formats.Poly import PolyLoader
 from ORD53.formats.Ipe import IpeLoader
 from ORD53.formats.Obj import ObjLoader
 from ORD53.formats.GraphML import GraphMLLoader
 import os.path
 import sys
 
-loaders = [ GraphMLLoader, LineLoader, IpeLoader, ObjLoader ]
+loaders = [ GraphMLLoader, LineLoader, PolyLoader, IpeLoader, ObjLoader ]
 def main():
     """Load a graph from stdin or a file."""
     import argparse
