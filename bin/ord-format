@@ -5,7 +5,9 @@
 if __name__ == '__main__' and __package__ is None:
     import os
     __LEVEL = 1
-    os.sys.path.append(os.path.abspath(os.path.join(*([os.path.dirname(__file__)] + ['..']*__LEVEL))))
+    path_elems = [os.path.dirname(os.path.realpath(__file__))] + ['..']*__LEVEL
+    extra_path = os.path.abspath(os.path.join( *path_elems ))
+    os.sys.path.append( extra_path )
 
 from ORD53.formats.Line import LineLoader
 from ORD53.formats.Poly import PolyLoader
@@ -26,6 +28,7 @@ def main():
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?')
     parser.add_argument('-f', '--flatten', action='store_true', default=False, help='flatten views and pages')
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
+    parser.add_argument('-S', '--scale', metavar='FACTOR', type=float, help='scale input by factor')
 
     args = parser.parse_args()
 
@@ -51,6 +54,9 @@ def main():
     if args.randomize_weights:
       for g in graphs:
         g.randomize_weights()
+
+    for g in graphs:
+        g.transform_coordinates(scale=args.scale)
 
     if args.outputfile is None:
         for g in graphs:
