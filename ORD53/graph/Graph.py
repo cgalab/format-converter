@@ -81,6 +81,14 @@ class GeometricGraph:
         for k, v in self.edges.items():
             v['w'] = str(random.uniform(rnd_lower, rnd_upper));
 
+    def transform_coordinates(self, scale=None):
+        if scale is not None:
+            new_v = IndexedSet()
+            for v in self.vertices:
+                assert isinstance(v, (Vertex2, Vertex3))
+                new_v.add( scale * v )
+            self.vertices = new_v
+
     def get_as_graphml(self):
         """Build a graphml XML document"""
         nsmap = {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
