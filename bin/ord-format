@@ -13,11 +13,12 @@ from ORD53.formats.Line import LineLoader
 from ORD53.formats.Poly import PolyLoader
 from ORD53.formats.Ipe import IpeLoader
 from ORD53.formats.Obj import ObjLoader
+from ORD53.formats.Site import SiteLoader
 from ORD53.formats.GraphML import GraphMLLoader
 import os.path
 import sys
 
-loaders = [ GraphMLLoader, LineLoader, PolyLoader, IpeLoader, ObjLoader ]
+loaders = [ GraphMLLoader, LineLoader, PolyLoader, IpeLoader, ObjLoader, SiteLoader ]
 def main():
     """Load a graph from stdin or a file."""
     import argparse
