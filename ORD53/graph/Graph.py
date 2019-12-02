@@ -67,6 +67,9 @@ class GeometricGraph:
         idx1 = self.add_vertex(vertex1)
 
         edge = tuple(sorted((idx0, idx1)))
+        if idx0 == idx1:
+            print("Ignoring loop edge", edge, file=sys.stderr)
+            return
         if edge in self.edges:
             raise GraphException("Edge already exists.")
         self.edges[edge] = {
