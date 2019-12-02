@@ -42,13 +42,13 @@ class GeometricGraph:
         assert isinstance(vertex, (Vertex2, Vertex3))
         return self.vertices.add(vertex)
 
-    def add_edge_by_index(self, idx0, idx1, w=None, wa=None):
+    def add_edge_by_index(self, idx0, idx1, w=None, wa=None, ignore_dups=False):
         """Add an edge given by 2 vertices (instance of int) to this graph."""
         assert isinstance(idx0, int)
         assert isinstance(idx1, int)
 
         edge = tuple(sorted((idx0, idx1)))
-        if edge in self.edges:
+        if edge in self.edges and not ignore_dups:
             raise GraphException("Edge already exists.")
         self.edges[edge] = {
             'w': w,

@@ -9,7 +9,7 @@ if __name__ == '__main__' and __package__ is None:
 
 from ORD53.graph.Graph import GeometricGraph
 from ORD53.common.geometry import Vertex3
-from ORD53.common.iter import pair_iterator, PeekIterator
+from ORD53.common.iter import cyclic_pair_iterator, PeekIterator
 
 import os
 
@@ -29,9 +29,8 @@ class ObjLoader:
         temp = next(f).split()
         temp.pop(0)
         face_list = [int(c)-1 for c in temp]
-        for e in pair_iterator(face_list):
-            g.add_edge_by_index(*e)
-        g.add_edge_by_index(face_list[0], face_list[-1])
+        for e in cyclic_pair_iterator(face_list):
+            g.add_edge_by_index(*e, ignore_dups=True)
 
     @classmethod
     def load(cls, content, name="unknown", args=None):
