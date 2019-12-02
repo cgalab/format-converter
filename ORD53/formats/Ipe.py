@@ -13,6 +13,7 @@ from ORD53.common.iter import pair_iterator, PeekIterator
 
 import xml.etree.ElementTree as ET
 import os
+import sys
 
 class IpeLoader:
     """Load a graph from an IPE file"""
@@ -161,8 +162,13 @@ class IpeLoader:
 
                 t =  child.text
                 m = list(map(lambda a: float(a), child.attrib['matrix'].split())) if 'matrix' in child.attrib else None
-                #p = child.attrib['pen'] if 'pen' in child.attrib else None
-                #speed = None
+                speed = None
+                if 'pen' in child.attrib:
+                    try:
+                        speed = float(child.attrib['pen'])
+                    except ValueError as e:
+                        print("Warning: Cannot interpret", child.attrib['pen'], "as weight number; Ignoring.", file=sys.stderr)
+
                 #if 'stroke' in child.attrib:
                 #    s = child.attrib['stroke'].split(' ', 2)
                 #    if len(s) == 3:
@@ -171,14 +177,14 @@ class IpeLoader:
                 if active_layer is None:
                     raise Exception("No active layer.")
                 if flatten:
-                    cls._add_path(graph, t, m)
+                    cls._add_path(graph, t, m, speed=speed)
                 else:
                     if not active_layer in layer_visible_in_views:
                         continue
                     assert(isinstance(layer_visible_in_views[active_layer], list))
                     for g in layer_visible_in_views[active_layer]:
                         assert(isinstance(g, GeometricGraph))
-                        cls._add_path(g, t, m)
+                        cls._add_path(g, t, m, speed=speed)
 
         if flatten:
             return graph

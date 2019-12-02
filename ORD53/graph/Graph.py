@@ -119,7 +119,7 @@ class GeometricGraph:
             attrib = {'source': str(src), 'target': str(dst)}
             edge = ET.Element(tags['edge'], attrib)
             if attributes['w'] is not None:
-                ET.SubElement(edge, tags['data'], {'key': 'w'}).text = attributes['w']
+                ET.SubElement(edge, tags['data'], {'key': 'w'}).text = str(attributes['w'])
             if attributes['wa'] is not None:
                 ET.SubElement(edge, tags['data'], {'key': 'wa'}).text = attributes['wa']
             graph.append(edge)
