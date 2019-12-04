@@ -80,7 +80,7 @@ class GeometricGraph:
     def __repr__(self):
         return "%s(%s, %s)"%(self.__class__.__name__, self.vertices, self.edges)
 
-    def randomize_weights(self, rnd_lower=0.0, rnd_upper=5.0):
+    def randomize_weights(self, rnd_lower=0.20, rnd_upper=5.0):
         for k, v in self.edges.items():
             v['w'] = str(random.uniform(rnd_lower, rnd_upper));
 
