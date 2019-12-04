@@ -8,7 +8,7 @@ The specification can be found in the [GRAPH-ATTRIBUTES][./GRAPH-ATTRIBUTES.md]
 in this repository.
 
 [monos]: https://github.com/cgalab/monos/
-[surfer2]: https://github.com/cgalab/surfer/
+[surfer2]: https://github.com/cgalab/surfer2/
 [graphml]: http://graphml.graphdrawing.org/
 
 # Installing
