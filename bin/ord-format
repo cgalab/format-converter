@@ -18,6 +18,12 @@ from ORD53.formats.GraphML import GraphMLLoader
 import os.path
 import sys
 
+def write_graph(args, g, f):
+    if args.ipe:
+        g.write_ipe(f)
+    else:
+        g.write_graphml(f)
+
 loaders = [ GraphMLLoader, LineLoader, PolyLoader, IpeLoader, ObjLoader, SiteLoader ]
 def main():
     """Load a graph from stdin or a file."""
@@ -27,6 +33,7 @@ def main():
     parser = argparse.ArgumentParser(description='Load a graph and output it in ord53 format')
     parser.add_argument('inputfile', help='Inputfile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?')
+    parser.add_argument('-I', '--ipe', action='store_true', default=False, help='created ipe output')
     parser.add_argument('-f', '--flatten', action='store_true', default=False, help='flatten views and pages')
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
     parser.add_argument('-S', '--scale', metavar='FACTOR', type=float, help='scale input by factor')
@@ -61,13 +68,13 @@ def main():
 
     if args.outputfile is None:
         for g in graphs:
-            g.write_graphml( sys.stdout.buffer )
+            write_graph(args, g, sys.stdout.buffer)
     else:
         start, ext = os.path.splitext(args.outputfile)
         for i, g in enumerate(graphs):
             fn = "%s-%03d%s"%(start, i, ext) if not args.flatten else args.outputfile
             with open(fn, 'bw') as f:
-                g.write_graphml(f)
+                write_graph(args, g, f)
 
 if __name__ == '__main__' and __package__ is None:
     main()
