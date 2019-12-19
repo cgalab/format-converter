@@ -1,5 +1,27 @@
 #!/usr/bin/python3
 
+# Copyright (c) 2018, 2019 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 """Loader for .ipe files."""
 
 if __name__ == '__main__' and __package__ is None:
@@ -13,6 +35,7 @@ from ORD53.common.iter import pair_iterator, PeekIterator
 
 import xml.etree.ElementTree as ET
 import os
+import sys
 
 class IpeLoader:
     """Load a graph from an IPE file"""
@@ -161,8 +184,13 @@ class IpeLoader:
 
                 t =  child.text
                 m = list(map(lambda a: float(a), child.attrib['matrix'].split())) if 'matrix' in child.attrib else None
-                #p = child.attrib['pen'] if 'pen' in child.attrib else None
-                #speed = None
+                speed = None
+                if 'pen' in child.attrib:
+                    try:
+                        speed = float(child.attrib['pen'])
+                    except ValueError as e:
+                        print("Warning: Cannot interpret", child.attrib['pen'], "as weight number; Ignoring.", file=sys.stderr)
+
                 #if 'stroke' in child.attrib:
                 #    s = child.attrib['stroke'].split(' ', 2)
                 #    if len(s) == 3:
@@ -171,14 +199,14 @@ class IpeLoader:
                 if active_layer is None:
                     raise Exception("No active layer.")
                 if flatten:
-                    cls._add_path(graph, t, m)
+                    cls._add_path(graph, t, m, speed=speed)
                 else:
                     if not active_layer in layer_visible_in_views:
                         continue
                     assert(isinstance(layer_visible_in_views[active_layer], list))
                     for g in layer_visible_in_views[active_layer]:
                         assert(isinstance(g, GeometricGraph))
-                        cls._add_path(g, t, m)
+                        cls._add_path(g, t, m, speed=speed)
 
         if flatten:
             return graph

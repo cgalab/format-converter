@@ -1,5 +1,27 @@
 #!/usr/bin/python3
 
+# Copyright (c) 2018, 2019 Peter Palfrader
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+# LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+# WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
 """Module providing (geometric) graphs and operations on them"""
 
 if __name__ == '__main__' and __package__ is None:
@@ -42,13 +64,13 @@ class GeometricGraph:
         assert isinstance(vertex, (Vertex2, Vertex3))
         return self.vertices.add(vertex)
 
-    def add_edge_by_index(self, idx0, idx1, w=None, wa=None):
+    def add_edge_by_index(self, idx0, idx1, w=None, wa=None, ignore_dups=False):
         """Add an edge given by 2 vertices (instance of int) to this graph."""
         assert isinstance(idx0, int)
         assert isinstance(idx1, int)
 
         edge = tuple(sorted((idx0, idx1)))
-        if edge in self.edges:
+        if edge in self.edges and not ignore_dups:
             raise GraphException("Edge already exists.")
         self.edges[edge] = {
             'w': w,
@@ -67,6 +89,9 @@ class GeometricGraph:
         idx1 = self.add_vertex(vertex1)
 
         edge = tuple(sorted((idx0, idx1)))
+        if idx0 == idx1:
+            print("Ignoring loop edge", edge, file=sys.stderr)
+            return
         if edge in self.edges:
             raise GraphException("Edge already exists.")
         self.edges[edge] = {
@@ -77,7 +102,7 @@ class GeometricGraph:
     def __repr__(self):
         return "%s(%s, %s)"%(self.__class__.__name__, self.vertices, self.edges)
 
-    def randomize_weights(self, rnd_lower=0.0, rnd_upper=5.0):
+    def randomize_weights(self, rnd_lower=0.20, rnd_upper=5.0):
         for k, v in self.edges.items():
             v['w'] = str(random.uniform(rnd_lower, rnd_upper));
 
@@ -116,7 +141,7 @@ class GeometricGraph:
             attrib = {'source': str(src), 'target': str(dst)}
             edge = ET.Element(tags['edge'], attrib)
             if attributes['w'] is not None:
-                ET.SubElement(edge, tags['data'], {'key': 'w'}).text = attributes['w']
+                ET.SubElement(edge, tags['data'], {'key': 'w'}).text = str(attributes['w'])
             if attributes['wa'] is not None:
                 ET.SubElement(edge, tags['data'], {'key': 'wa'}).text = attributes['wa']
             graph.append(edge)
@@ -134,3 +159,31 @@ class GeometricGraph:
         xml = self.get_as_graphml()
         for s in ET.tostringlist(xml, pretty_print=True):
             f.write(s)
+
+    def write_ipe(self, f):
+        f.write("""<?xml version="1.0"?>
+<!DOCTYPE ipe SYSTEM "ipe.dtd">
+<ipe version="70000" creator="surfer2">
+<info bbox="cropbox" />
+<ipestyle name="surf">
+  <color name="black" value="0 0 0"/>
+  <color name="gray" value="0.2 0.2 0.2"/>
+  <color name="blue" value="0 0 1"/>
+  <color name="royalblue" value="0 0.5 1"/>
+  <color name="magenta" value="1 0 1"/>
+  <color name="red" value="1 0 0"/>
+  <color name="darkgreen" value="0 0.5 0"/>
+  <color name="orange" value="1 0.66 0.34"/>
+</ipestyle>
+<page>
+""".encode())
+        for vi1, vi2 in self.edges.keys():
+            v1 = self.vertices.list[vi1]
+            v2 = self.vertices.list[vi2]
+            f.write(("""<path>
+    %.15f %.15f m
+    %.15f %.15f l
+  </path>
+"""%(v1.x,v1.y,v2.x,v2.y)).encode())
+
+        f.write("</page>\n</ipe>\n".encode())

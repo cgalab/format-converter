@@ -22,7 +22,7 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-"""Loader for .line formatted graphs."""
+"""Loader for .site formatted graphs."""
 
 if __name__ == '__main__' and __package__ is None:
     import os
@@ -35,39 +35,23 @@ from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
 
-class LineLoader:
-    extension = '.line'
-
-    """Load a graph from Martin's .line format"""
-    @staticmethod
-    def _add_polychain(g, f, close = False):
-        """Add a single polychain from the file"""
-        vertices = []
-        num_elems = int(next(f))
-        for _ in range(num_elems):
-            (x, y) = [float(c) for c in next(f).split()]
-            vertices.append(Vertex2(x, y))
-
-        for t in pair_iterator(vertices):
-            g.add_edge_by_vertex(*t)
-
-        if close:
-            g.add_edge_by_vertex( vertices[-1],vertices[0] )
-
+class SiteLoader:
+    extension = '.site'
 
     @classmethod
     def load(cls, content, name="unknown", args=None):
-        """Load graph from a valid .line file"""
+        """Load graph from a valid .site file"""
         g = GeometricGraph(source=name, fmt=os.path.basename(__file__))
-        f = PeekIterator(content.splitlines())
+        f = iter(content.splitlines())
         while True:
             try:
-                if f.peek() == "":
-                    next(f)
-                    continue
+                element_type = next(f).rstrip()
+                element_data = next(f).rstrip()
+                if element_type == "0": # segment
+                    c = [float(e) for e in element_data.split()]
+                    g.add_edge_by_vertex(Vertex2(c[0], c[1]), Vertex2(c[2], c[3]))
             except StopIteration:
                 break
-            cls._add_polychain(g, f)
         return g
 
 def main():
@@ -75,14 +59,14 @@ def main():
     import argparse
     import sys
 
-    parser = argparse.ArgumentParser(description='Load a graph from a .line file')
-    parser.add_argument('inputfile', help='Inputfile (.line)', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser = argparse.ArgumentParser(description='Load a graph from a .site file')
+    parser.add_argument('inputfile', help='Inputfile (.site)', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?', type=argparse.FileType('wb'), default=sys.stdout.buffer)
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
 
     args = parser.parse_args()
 
-    g = LineLoader.load(args.inputfile.read())
+    g = SiteLoader.load(args.inputfile.read())
     if args.randomize_weights:
       g.randomize_weights()
     g.write_graphml(args.outputfile)
