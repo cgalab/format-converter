@@ -20,7 +20,7 @@ import sys
 
 def write_graph(args, g, f):
     if args.ipe:
-        g.write_ipe(f)
+        g.write_ipe(f, args.ipe_markers)
     else:
         g.write_graphml(f)
 
@@ -33,7 +33,8 @@ def main():
     parser = argparse.ArgumentParser(description='Load a graph and output it in ord53 format')
     parser.add_argument('inputfile', help='Inputfile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?')
-    parser.add_argument('-I', '--ipe', action='store_true', default=False, help='created ipe output')
+    parser.add_argument('-I', '--ipe', action='store_true', default=False, help='create ipe output')
+    parser.add_argument('-M', '--ipe-markers', action='store_true', default=False, help='add markers to vertices in ipe output')
     parser.add_argument('-f', '--flatten', action='store_true', default=False, help='flatten views and pages')
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
     parser.add_argument('-S', '--scale', metavar='FACTOR', type=float, help='scale input by factor')
