@@ -104,9 +104,13 @@ class GeometricGraph:
 
     def randomize_weights(self, rnd_lower=0.20, rnd_upper=5.0, round_n=None):
         for k, v in self.edges.items():
-            r = random.uniform(rnd_lower, rnd_upper);
-            if round_n is not None:
-                r = round(r, round_n)
+            while True:
+              r = random.uniform(rnd_lower, rnd_upper);
+              if round_n == 0:
+                  r = round(r)  # So this gets turned into an integer, unlike when calling round(r,0)
+              elif round_n is not None:
+                  r = round(r, round_n)
+              if r != 0: break
             v['w'] = str(r)
 
     def transform_coordinates(self, scale=None):
