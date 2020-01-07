@@ -53,7 +53,12 @@ class GraphMLLoader:
             vertices[node.id] = Vertex2(node['x'], node['y'])
 
         for edge in gml.edges():
-            g.add_edge_by_vertex( vertices[ edge.parent().id ], vertices[ edge.child().id ], w=edge['w'])
+            weigth = None
+            try:
+                weigth = edge['w']
+            except KeyError:
+                pass
+            g.add_edge_by_vertex( vertices[ edge.parent().id ], vertices[ edge.child().id ], w=weigth)
 
     @classmethod
     def load(cls, content, name="unknown", args=None):

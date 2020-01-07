@@ -37,6 +37,9 @@ def main():
     parser.add_argument('-M', '--ipe-markers', action='store_true', default=False, help='add markers to vertices in ipe output')
     parser.add_argument('-f', '--flatten', action='store_true', default=False, help='flatten views and pages')
     parser.add_argument('-r', '--randomize-weights', action='store_true', default=False, help='randomize edge weights')
+    parser.add_argument('--randomize-min', metavar='RND_MIN', type=float, default=None, help='smallest edge weight')
+    parser.add_argument('--randomize-max', metavar='RND_MAX', type=float, default=None, help='largest edge weight')
+    parser.add_argument('-R', '--randomize-digits', metavar='RND_DIGITS', type=int, default=None, help='round random weight to this many digits')
     parser.add_argument('-S', '--scale', metavar='FACTOR', type=float, help='scale input by factor')
 
     args = parser.parse_args()
@@ -65,7 +68,11 @@ def main():
 
     if args.randomize_weights:
       for g in graphs:
-        g.randomize_weights()
+        kwargs = {}
+        if args.randomize_min is not None: kwargs['rnd_lower'] = args.randomize_min
+        if args.randomize_max is not None: kwargs['rnd_upper'] = args.randomize_max
+        if args.randomize_digits is not None: kwargs['round_n'] = args.randomize_digits
+        g.randomize_weights(**kwargs)
 
     for g in graphs:
         g.transform_coordinates(scale=args.scale)
