@@ -49,7 +49,10 @@ def main():
         if ext == '' or ext == l.extension:
             try:
                 graphs = l.load(content, args.inputfile.name, args)
-                break
+                if len(graphs.edges) > 0:
+                    break
+                else:
+                    graphs = None
             except Exception as e:
                 if ext != '': raise e
 

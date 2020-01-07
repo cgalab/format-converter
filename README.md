@@ -14,8 +14,12 @@ in this repository.
 # Installing
 
 Just symlinking `bin/ord-format` to your `~/bin` directory, if that is in your
-`PATH` should suffice.  If you want a more pythonesque way, then `pip3 install .`
-or `pip3 install -e .` should also work.
+`PATH` should suffice.
+
+If you want to *read* grahml, you also need the pygraphml module from https://pypi.org/project/pygraphml/.
+
+For a more pythonesque way, try `pip3 install .` or `pip3 install -e .` to install it
+in your home directory, or a virtualenv if you set up and activated one.
 
 # Running
 
