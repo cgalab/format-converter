@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2018, 2019 Peter Palfrader
+# Copyright (c) 2018, 2019, 2020 Peter Palfrader
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
@@ -35,26 +35,29 @@ from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
 
-class GraphMLPassthroughException(Exception):
-    pass
-
-class GraphMLPassthroughGraph:
-    def __init__(self, content):
-        self.graphml = content
-        if not self.graphml.startswith('<graphml'):
-            raise GraphMLPassthroughException("Not a graphml file")
-
-    def randomize_weights(self, rnd_lower=0.0, rnd_upper=5.0):
-        raise GraphMLPassthroughException("randomize_weights() not implemented for passthrough.")
-
-    def write_graphml(self, f):
-        """Write a graphml representation to the file f"""
-        f.write(self.graphml.encode('UTF-8'))
-
 class GraphMLLoader:
     extension = '.graphml'
 
+    @staticmethod
+    def _load_graphml(g, content):
+        try:
+            import pygraphml
+        except ModuleNotFoundError as e:
+            print("Warning: To read graphml files we need the pygraphml module.")
+            return
+
+        parser = pygraphml.GraphMLParser()
+        gml = parser.parse_string(content)
+        vertices = {}
+        for node in gml.nodes():
+            vertices[node.id] = Vertex2(node['x'], node['y'])
+
+        for edge in gml.edges():
+            g.add_edge_by_vertex( vertices[ edge.parent().id ], vertices[ edge.child().id ], w=edge['w'])
+
     @classmethod
     def load(cls, content, name="unknown", args=None):
-        g = GraphMLPassthroughGraph(content)
+        g = GeometricGraph(source=name, fmt=os.path.basename(__file__))
+        cls._load_graphml(g, content)
+
         return g

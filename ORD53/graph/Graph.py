@@ -160,11 +160,18 @@ class GeometricGraph:
         for s in ET.tostringlist(xml, pretty_print=True):
             f.write(s)
 
-    def write_ipe(self, f):
+    def write_ipe(self, f, markers=False):
         f.write("""<?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70000" creator="surfer2">
 <info bbox="cropbox" />
+<ipestyle name="basic">
+<symbol name="mark/disk(sx)" transformations="translations">
+<path fill="sym-stroke">
+0.6 0 0 0.6 0 0 e
+</path>
+</symbol>
+</ipestyle>
 <ipestyle name="surf">
   <color name="black" value="0 0 0"/>
   <color name="gray" value="0.2 0.2 0.2"/>
@@ -176,14 +183,17 @@ class GeometricGraph:
   <color name="orange" value="1 0.66 0.34"/>
 </ipestyle>
 <page>
+<layer name="edges"/>
+<layer name="vertices"/>
 """.encode())
         for vi1, vi2 in self.edges.keys():
             v1 = self.vertices.list[vi1]
             v2 = self.vertices.list[vi2]
-            f.write(("""<path>
+            f.write(("""<path layer="edges">
     %.15f %.15f m
     %.15f %.15f l
   </path>
 """%(v1.x,v1.y,v2.x,v2.y)).encode())
-
+        for v in self.vertices.list:
+            f.write(("""<use layer="vertices" name="mark/disk(sx)" pos="%.15f %.15f" size="normal" stroke="black"/>"""%(v.x, v.y)).encode())
         f.write("</page>\n</ipe>\n".encode())
