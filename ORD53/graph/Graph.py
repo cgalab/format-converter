@@ -102,9 +102,12 @@ class GeometricGraph:
     def __repr__(self):
         return "%s(%s, %s)"%(self.__class__.__name__, self.vertices, self.edges)
 
-    def randomize_weights(self, rnd_lower=0.20, rnd_upper=5.0):
+    def randomize_weights(self, rnd_lower=0.20, rnd_upper=5.0, round_n=None):
         for k, v in self.edges.items():
-            v['w'] = str(random.uniform(rnd_lower, rnd_upper));
+            r = random.uniform(rnd_lower, rnd_upper);
+            if round_n is not None:
+                r = round(r, round_n)
+            v['w'] = str(r)
 
     def transform_coordinates(self, scale=None):
         if scale is not None:
