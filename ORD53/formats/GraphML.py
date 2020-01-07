@@ -66,7 +66,7 @@ class GraphMLLoader:
         g = GeometricGraph(source=source, fmt=fmt)
         tags = g.get_tags()
 
-        root = ET.fromstring(content)
+        root = ET.fromstring(content.encode())
         if not root.tag == tags['graphml']:
             raise Exception("Not a graphml file")
 
