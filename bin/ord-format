@@ -31,7 +31,7 @@ def main():
     import sys
 
     parser = argparse.ArgumentParser(description='Load a graph and output it in ord53 format')
-    parser.add_argument('inputfile', help='Inputfile', nargs='?', type=argparse.FileType('r'), default=sys.stdin)
+    parser.add_argument('inputfile', help='Inputfile', nargs='?', type=argparse.FileType('rb'), default=sys.stdin)
     parser.add_argument('outputfile', help='Outputfile (.graphml)', nargs='?')
     parser.add_argument('-I', '--ipe', action='store_true', default=False, help='create ipe output')
     parser.add_argument('-M', '--ipe-markers', action='store_true', default=False, help='add markers to vertices in ipe output')
@@ -52,7 +52,10 @@ def main():
         if ext == '' or ext == l.extension:
             try:
                 graphs = l.load(content, args.inputfile.name, args)
-                if len(graphs.edges) > 0:
+                if isinstance(graphs, list):
+                    if len(graphs) > 0 and len(graphs[0].edges) > 0:
+                        break
+                elif graphs is not None and len(graphs.edges) > 0:
                     break
                 else:
                     graphs = None

@@ -12,9 +12,6 @@ setup(
         'ORD53.formats',
         'ORD53.graph',
     ],
-    install_requires=[
-        'pygraphml',
-    ],
     scripts=[
         'bin/ord-format'
     ],
