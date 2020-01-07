@@ -35,8 +35,6 @@ from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
 
-class GraphMLLoaderException:
-    pass
 class GraphMLLoader:
     extension = '.graphml'
 
@@ -44,8 +42,9 @@ class GraphMLLoader:
     def _load_graphml(g, content):
         try:
             import pygraphml
-        except ModuleNotFoundError:
-            raise GraphMLLoaderException("need the pygraphml module")
+        except ModuleNotFoundError as e:
+            print("Warning: To read graphml files we need the pygraphml module.")
+            return
 
         parser = pygraphml.GraphMLParser()
         gml = parser.parse_string(content)
