@@ -196,16 +196,19 @@ class GeometricGraph:
 </ipestyle>
 <page>
 <layer name="edges"/>
-<layer name="vertices"/>
 """.encode())
+        if markers:
+            f.write("""<layer name="vertices"/>\n""".encode())
         for vi1, vi2 in self.edges.keys():
             v1 = self.vertices.list[vi1]
             v2 = self.vertices.list[vi2]
             f.write(("""<path layer="edges">
-    %.15f %.15f m
-    %.15f %.15f l
+    %s %s m
+    %s %s l
   </path>
 """%(v1.x,v1.y,v2.x,v2.y)).encode())
-        for v in self.vertices.list:
-            f.write(("""<use layer="vertices" name="mark/disk(sx)" pos="%.15f %.15f" size="normal" stroke="black"/>"""%(v.x, v.y)).encode())
+
+        if markers:
+            for v in self.vertices.list:
+                f.write(("""<use layer="vertices" name="mark/disk(sx)" pos="%s %s" size="normal" stroke="black"/>\n"""%(v.x, v.y)).encode())
         f.write("</page>\n</ipe>\n".encode())
