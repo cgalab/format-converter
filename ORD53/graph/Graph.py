@@ -121,11 +121,16 @@ class GeometricGraph:
                 new_v.add( scale * v )
             self.vertices = new_v
 
+    def get_nsmap(self):
+        return {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
+
+    def get_tags(self):
+        return {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data', 'default')}
+
     def get_as_graphml(self):
         """Build a graphml XML document"""
-        nsmap = {None : self.GRAPHML_NAMESPACE, 'xsi': self.XML_XSI}
-
-        tags = {x: ET.QName(self.GRAPHML_NAMESPACE, x) for x in ('graphml', 'graph', 'node', 'edge', 'key', 'data', 'default')}
+        nsmap = self.get_nsmap()
+        tags = self.get_tags()
 
         graphml = ET.Element(tags['graphml'], attrib={"{"+self.XML_XSI+"}schemaLocation": self.GRAPHML_SCHEMA_LOCATION}, nsmap=nsmap)
         ET.SubElement(graphml, tags['key'], {'for': 'node', 'attr.name': 'vertex-coordinate-x', 'attr.type': 'string', 'id': 'x'})

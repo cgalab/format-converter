@@ -52,7 +52,10 @@ def main():
         if ext == '' or ext == l.extension:
             try:
                 graphs = l.load(content, args.inputfile.name, args)
-                if len(graphs.edges) > 0:
+                if isinstance(graphs, list):
+                    if len(graphs) > 0 and len(graphs[0].edges) > 0:
+                        break
+                elif graphs is not None and len(graphs.edges) > 0:
                     break
                 else:
                     graphs = None

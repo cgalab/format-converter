@@ -29,40 +29,100 @@ if __name__ == '__main__' and __package__ is None:
     __LEVEL = 2
     os.sys.path.append(os.path.abspath(os.path.join(*([os.path.dirname(__file__)] + ['..']*__LEVEL))))
 
+from lxml import etree as ET
+
 from ORD53.graph.Graph import GeometricGraph
+from ORD53.common.IndexedSet import IndexedSet
 from ORD53.common.geometry import Vertex2
 from ORD53.common.iter import pair_iterator, PeekIterator
 
 import os
+import sys
 
 class GraphMLLoader:
     extension = '.graphml'
 
     @staticmethod
-    def _load_graphml(g, content):
-        try:
-            import pygraphml
-        except ModuleNotFoundError as e:
-            print("Warning: To read graphml files we need the pygraphml module.")
-            return
+    def _load_item(item, keys, tags):
+        item_attrs = {}
+        for data in item:
+            if data.tag != tags['data']: continue
+            if not 'key' in data.attrib: raise Exception("data has no key!")
+            k = data.attrib['key']
+            if not k in keys: raise Exception("Unknown key " + k)
+            item_attrs[k] = data.text
 
-        parser = pygraphml.GraphMLParser()
-        gml = parser.parse_string(content)
-        vertices = {}
-        for node in gml.nodes():
-            vertices[node.id] = Vertex2(node['x'], node['y'])
+        res = {}
+        for k in keys:
+            if k in item_attrs: value = item_attrs[k]
+            else: value = keys[k]['default']
+            if value is not None:
+                res[keys[k]['attr.name']] = value
+        return res
 
-        for edge in gml.edges():
-            weigth = None
-            try:
-                weigth = edge['w']
-            except KeyError:
-                pass
-            g.add_edge_by_vertex( vertices[ edge.parent().id ], vertices[ edge.child().id ], w=weigth)
+    @staticmethod
+    def _load_graphml(source, fmt, content):
+        graphs = []
+        g = GeometricGraph(source=source, fmt=fmt)
+        tags = g.get_tags()
+
+        root = ET.fromstring(content.encode())
+        if not root.tag == tags['graphml']:
+            raise Exception("Not a graphml file")
+
+        keys_attrs_edge = {}
+        keys_attrs_node = {}
+
+        for child in root:
+            if child.tag != tags['key']: continue
+
+            a = None
+            if child.attrib['for'] == "node": a = keys_attrs_node
+            if child.attrib['for'] == "edge": a = keys_attrs_edge
+            if a is not None:
+                h = { 'attr.name': child.attrib['attr.name'] }
+                default = child.find(tags['default'])
+                if default is not None:
+                    h['default'] = default.text
+                a[child.attrib['id']] = h
+            else:
+                print("Ignoring unknown key", ET.tostring(child), file=sys.stderr)
+
+        for graph in root:
+            if graph.tag != tags['graph']: continue
+
+            vertices = {}
+            for child in graph:
+                if child.tag != tags['node']: continue
+                if not 'id' in child.attrib: raise Exception("Node has no id!")
+
+                id = child.attrib['id']
+                node_data = GraphMLLoader._load_item(child, keys_attrs_node, tags)
+                if not 'vertex-coordinate-x' in node_data: raise Exception("No vertex-coordinate-x for node")
+                if not 'vertex-coordinate-y' in node_data: raise Exception("No vertex-coordinate-y for node")
+                vertices[id] = g.add_vertex( Vertex2(node_data['vertex-coordinate-x'], node_data['vertex-coordinate-y']) )
+
+            for child in graph:
+                if child.tag != tags['edge']: continue
+                if not 'source' in child.attrib: raise Exception("Edge has no source!")
+                if not 'target' in child.attrib: raise Exception("Edge has no target!")
+
+                idx0 = vertices[ child.attrib['source'] ]
+                idx1 = vertices[ child.attrib['target'] ]
+
+                edge_data = GraphMLLoader._load_item(child, keys_attrs_edge, tags)
+                w = edge_data.get('edge-weight', None)
+                wa = edge_data.get('edge-weight-additive', None)
+                if w == g.DEFAULT_W: w = None
+                if wa == g.DEFAULT_WA: wa = None
+                g.add_edge_by_index(idx0, idx1, w=w, wa=wa)
+
+            graphs.append(g)
+            g = GeometricGraph(source=source, fmt=fmt)
+        return graphs
 
     @classmethod
     def load(cls, content, name="unknown", args=None):
-        g = GeometricGraph(source=name, fmt=os.path.basename(__file__))
-        cls._load_graphml(g, content)
+        g = cls._load_graphml(source=name, fmt=os.path.basename(__file__), content=content)
 
         return g
