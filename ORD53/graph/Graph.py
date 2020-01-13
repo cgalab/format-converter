@@ -212,3 +212,11 @@ class GeometricGraph:
             for v in self.vertices.list:
                 f.write(("""<use layer="vertices" name="mark/disk(sx)" pos="%s %s" size="normal" stroke="black"/>\n"""%(v.x, v.y)).encode())
         f.write("</page>\n</ipe>\n".encode())
+
+    def write_obj(self, f, zero_offset = False):
+        offset = 1 if not zero_offset else 0
+        f.write("""# wavefront obj file\n""".encode())
+        for v in self.vertices.list:
+            f.write(("""v %s %s %s\n"""%(v.x, v.y, str(0.0))).encode())
+        for vi1, vi2 in self.edges.keys():
+            f.write(("""f %s %s\n"""%(vi1+offset,vi2+offset)).encode())
