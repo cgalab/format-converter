@@ -104,7 +104,7 @@ class IpeLoader:
         line = lines.pop(0)
         f = line.split()
         if f[2] != "m":
-            raise Exception("first line of text did not start with an m element")
+            raise Exception("first line of text did not start with an m element: "+line)
         x, y = float(f[0]), float(f[1])
         x, y = IpeLoader._transform(x, y, matrix)
         v0 = Vertex2(x, y)
@@ -122,7 +122,7 @@ class IpeLoader:
                 x, y = float(f[0]), float(f[1])
                 x, y = IpeLoader._transform(x, y, matrix)
                 pathtype = f[-1]
-                if pathtype == "l":
+                if pathtype == "l" or pathtype =="m":
                     v1 = Vertex2(x, y)
 
             if pathtype == "l":
@@ -132,6 +132,8 @@ class IpeLoader:
                 if wa is not None:
                     e['wa'] = wa
                 g.add_edge_by_vertex(**e)
+                v0 = v1
+            elif pathtype == "m": # starting a new chain
                 v0 = v1
             elif pathtype == "a":
                 if matrix is not None:
@@ -146,7 +148,7 @@ class IpeLoader:
                 v1 = Vertex2(float(f[6]), float(f[7]))
                 IpeLoader._sample_arc(g, center, r, v0, v1)
             else:
-                raise Exception("Unknown element in second line of text")
+                raise Exception("Unknown element in second line of text: "+line)
 
 
 
