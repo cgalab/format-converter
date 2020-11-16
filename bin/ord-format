@@ -11,6 +11,7 @@ if __name__ == '__main__' and __package__ is None:
 
 from ORD53.formats.Line import LineLoader
 from ORD53.formats.Poly import PolyLoader
+from ORD53.formats.Point import PointLoader
 from ORD53.formats.Ipe import IpeLoader
 from ORD53.formats.Obj import ObjLoader
 from ORD53.formats.Site import SiteLoader
@@ -26,7 +27,7 @@ def write_graph(args, g, f):
     else:
         g.write_graphml(f)
 
-loaders = [ GraphMLLoader, LineLoader, PolyLoader, IpeLoader, ObjLoader, SiteLoader ]
+loaders = [ GraphMLLoader, LineLoader, PointLoader, PolyLoader, IpeLoader, ObjLoader, SiteLoader ]
 def main():
     """Load a graph from stdin or a file."""
     import argparse
@@ -57,9 +58,9 @@ def main():
             try:
                 graphs = l.load(content, args.inputfile.name, args)
                 if isinstance(graphs, list):
-                    if len(graphs) > 0 and len(graphs[0].edges) > 0:
+                    if len(graphs) > 0 and len(graphs[0].vertices) > 0:
                         break
-                elif graphs is not None and len(graphs.edges) > 0:
+                elif graphs is not None and len(graphs.vertices) > 0:
                     break
                 else:
                     graphs = None
